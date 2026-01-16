@@ -19,7 +19,7 @@ A modern, responsive personal portfolio website built for GitHub Pages.
    git add .
    git commit -m "Initial portfolio setup"
    git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   git remote add origin https://github.com/bmwelu12/bmwelu.io.git
    git push -u origin main
    ```
 
@@ -32,7 +32,7 @@ A modern, responsive personal portfolio website built for GitHub Pages.
    - Click **Save**
 
 3. **Your site will be live at:**
-   `https://YOUR_USERNAME.github.io/YOUR_REPO_NAME/`
+   `https://bmwelu.github.io/bmwelu12/`
 
 ## Customization
 
