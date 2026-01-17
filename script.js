@@ -1,72 +1,31 @@
-// Create particle effect
-function createParticles() {
-    const particleContainer = document.createElement('div');
-    particleContainer.id = 'particles';
-    particleContainer.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 0;
-        overflow: hidden;
-    `;
-    document.body.appendChild(particleContainer);
-
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        const size = Math.random() * 3 + 1;
-        const x = Math.random() * 100;
-        const y = Math.random() * 100;
-        const duration = Math.random() * 20 + 10;
-        const delay = Math.random() * 5;
-        
-        particle.style.cssText = `
-            position: absolute;
-            width: ${size}px;
-            height: ${size}px;
-            background: rgba(0, 243, 255, 0.5);
-            border-radius: 50%;
-            left: ${x}%;
-            top: ${y}%;
-            box-shadow: 0 0 ${size * 2}px rgba(0, 243, 255, 0.8);
-            animation: float ${duration}s ease-in-out infinite;
-            animation-delay: ${delay}s;
-        `;
-        
-        particleContainer.appendChild(particle);
+// Blur functionality for sections (visual effect only, doesn't block navigation)
+function initBlurOnClick() {
+    // Only apply blur effect on home page link cards
+    if (!window.location.pathname.includes('index.html') && window.location.pathname !== '/') {
+        return;
     }
 
-    // Add CSS animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes float {
-            0%, 100% {
-                transform: translate(0, 0) scale(1);
-                opacity: 0.3;
-            }
-            25% {
-                transform: translate(20px, -20px) scale(1.2);
-                opacity: 0.6;
-            }
-            50% {
-                transform: translate(-20px, 20px) scale(0.8);
-                opacity: 0.4;
-            }
-            75% {
-                transform: translate(20px, 20px) scale(1.1);
-                opacity: 0.7;
-            }
-        }
-    `;
-    document.head.appendChild(style);
-}
+    // Get only link cards on home page (not navbar links)
+    const linkCards = document.querySelectorAll('.link-card');
 
-// Initialize particles on load
-document.addEventListener('DOMContentLoaded', () => {
-    createParticles();
-});
+    linkCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            // Blur all other cards on hover
+            linkCards.forEach(otherCard => {
+                if (otherCard !== this) {
+                    otherCard.classList.add('section-blurred');
+                }
+            });
+        });
+
+        card.addEventListener('mouseleave', function() {
+            // Remove blur when mouse leaves
+            linkCards.forEach(otherCard => {
+                otherCard.classList.remove('section-blurred');
+            });
+        });
+    });
+}
 
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -97,9 +56,43 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe elements for fade-in animation
+// Set cover images for link cards
+function setCoverImages() {
+    const linkCards = document.querySelectorAll('.link-card[data-image]');
+    linkCards.forEach((card, index) => {
+        const imageUrl = card.getAttribute('data-image');
+        if (imageUrl) {
+            // Add unique class and create style
+            const uniqueClass = `link-card-img-${index}`;
+            card.classList.add(uniqueClass);
+            
+            // Create or update style element
+            let styleEl = document.getElementById('link-card-images');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'link-card-images';
+                document.head.appendChild(styleEl);
+            }
+            
+            // Append style for this card
+            styleEl.textContent += `.${uniqueClass}::before { background-image: url(${imageUrl}); }\n`;
+        }
+    });
+}
+
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
-    const animatedElements = document.querySelectorAll('.link-card, .project-card, .award-item, .publication-item, .media-item, .experience-item');
+    // Set cover images
+    setCoverImages();
+    
+    // Initialize blur functionality
+    initBlurOnClick();
+
+    // Animate elements for fade-in
+    const animatedElements = document.querySelectorAll(
+        '.link-card, .project-card, .award-item, .publication-item, .media-item, .experience-item'
+    );
+    
     animatedElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(20px)';
@@ -132,72 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Mobile menu toggle (if needed in future)
-function toggleMobileMenu() {
-    const navMenu = document.querySelector('.nav-menu');
-    navMenu.classList.toggle('active');
-}
-
 // Navbar scroll effect
 window.addEventListener('scroll', () => {
     const navbar = document.querySelector('.navbar');
     if (navbar) {
         if (window.scrollY > 50) {
-            navbar.classList.add('scrolled');
+            navbar.style.background = 'rgba(0, 0, 0, 0.9)';
         } else {
-            navbar.classList.remove('scrolled');
+            navbar.style.background = 'rgba(0, 0, 0, 0.7)';
         }
     }
-    
-    // Parallax effect for hero section (only on home page)
-    const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero-section');
-    if (hero && window.location.pathname.includes('index.html') || window.location.pathname === '/') {
-        hero.style.transform = `translateY(${scrolled * 0.3}px)`;
-    }
-});
-
-// Typing effect for hero title (optional enhancement)
-function typeWriter(element, text, speed = 100) {
-    let i = 0;
-    element.textContent = '';
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
-    }
-    type();
-}
-
-// Add interactive cursor effect on cards
-document.querySelectorAll('.link-card, .project-card').forEach(card => {
-    card.addEventListener('mousemove', function(e) {
-        const rect = this.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        
-        this.style.setProperty('--mouse-x', `${x}px`);
-        this.style.setProperty('--mouse-y', `${y}px`);
-    });
-});
-
-// Smooth reveal animation for skills list
-const skillsObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateX(0)';
-            }, index * 100);
-        }
-    });
-}, { threshold: 0.1 });
-
-document.querySelectorAll('.skills-list li').forEach(skill => {
-    skill.style.opacity = '0';
-    skill.style.transform = 'translateX(-20px)';
-    skill.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-    skillsObserver.observe(skill);
 });
